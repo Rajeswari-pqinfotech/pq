@@ -12,7 +12,7 @@ const employeeModel = require('../model/employeemodel.js');
 const Employee = {
     Register: async (req, res) => {
         try {
-            console.log(req.file);
+            // console.log(req.file);
             const salt = await bcrypt.genSalt(10);
             const pass = bcrypt.hashSync(req.body.password, salt);
             req.body.password = pass;
@@ -253,12 +253,37 @@ const Employee = {
             res.send(Employessresponse.Error);
         }
     },
+    addImage:async(req,res)=>{
+        try{
+            if(req.file){
+                const updata = {
+                    imgName:req.file.originalname,
+                    imgContextType:req.file.mimetype,
+                    imgData:req.file.buffer
+                };
+                console.log(req.body.id);
+                const imgupdt = await employeeModel.findOneAndUpdate({_id:req.body.id},updata).exec();
+
+                Employessresponse.success.message="images uploaded successfully.";
+                Employessresponse.success.data=[];
+                res.send(Employessresponse.success);
+            }else{
+                Employessresponse.Fail.message="Images is missing";
+                res.send(Employessresponse.Fail);
+            }
+        }
+        catch (error) {
+            console.error('Error retrieving image:', error);
+            res.status(500).send('Error retrieving image');
+        }
+    },
     GetImage:async(req,res)=>{
         try {
             const image = await employeeModel.findById({_id:req.params.id});
     
             if (!image) {
-                return res.status(404).send('Image not found');
+                Employessresponse.Fail.message = "image not found.";
+                res.send(Employessresponse.Fail);
             }
     
             // Set response headers to serve the image

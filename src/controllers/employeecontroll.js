@@ -12,17 +12,18 @@ const employeeModel = require('../model/employeemodel.js');
 const Employee = {
     Register: async (req, res) => {
         try {
-            // console.log(req.file);
+            //  console.log(req.body);
             const salt = await bcrypt.genSalt(10);
             const pass = bcrypt.hashSync(req.body.password, salt);
             req.body.password = pass;
             req.body.createdAt = new Date();
 
-            req.body.imgName = req.file.originalname;
-            req.body.imgContextType = req.file.mimetype;
-            req.body.imgData = req.file.buffer;
+            // req.body.imgName = req.file.originalname;
+            // req.body.imgContextType = req.file.mimetype;
+            // req.body.imgData = req.file.buffer;
+            // req.body.imgData = "Binary.createFromBase64("+req.body.imgData+",0)";
 
-
+           
             const result = await new employeemodel(req.body).save();
 
             const response = Employessresponse.success
@@ -192,8 +193,8 @@ const Employee = {
     GetEmployee: async (req, res) => {
         try {
 
-            const tk = req.headers.token;
-            const emptoken = jwt.verify(tk, process.env.secreteKey);
+            // const tk = req.headers.token;
+            // const emptoken = jwt.verify(tk, process.env.secreteKey);
 
             // var empid = emptoken.id;
             const empid = req.body.employeeId;
@@ -213,7 +214,7 @@ const Employee = {
                 }
             }
             else {
-                Employessresponse.Fail.message = "Invalid token.";
+                Employessresponse.Fail.message = "employee id is empty.";
                 res.send(Employessresponse.Fail);
             }
 
@@ -257,11 +258,11 @@ const Employee = {
         try{
             if(req.file){
                 const updata = {
-                    imgName:req.file.originalname,
-                    imgContextType:req.file.mimetype,
-                    imgData:req.file.buffer
+                    imgName:req.body.imgName,
+                    imgContextType:req.body.imgContextType,
+                    imgData:req.body.imgData
                 };
-                console.log(req.body.id);
+                // console.log(req.body.id);
                 const imgupdt = await employeeModel.findOneAndUpdate({_id:req.body.id},updata).exec();
 
                 Employessresponse.success.message="images uploaded successfully.";
@@ -285,10 +286,18 @@ const Employee = {
                 Employessresponse.Fail.message = "image not found.";
                 res.send(Employessresponse.Fail);
             }
-    
+            
+            var img = Buffer.from(image.imgData, 'base64');
+
+            res.writeHead(200, {
+                'Content-Type': image.imgContextType,
+                'Content-Length': img.length
+            });
+            res.end(img); 
+          
             // Set response headers to serve the image
-            res.set('Content-Type', image.imgContextType);
-            res.send(image.imgData);
+            // res.set('Content-Type', image.imgContextType);
+            // res.send(image);
         } catch (error) {
             console.error('Error retrieving image:', error);
             res.status(500).send('Error retrieving image');
@@ -297,3 +306,4 @@ const Employee = {
 }
 
 module.exports = Employee;
+

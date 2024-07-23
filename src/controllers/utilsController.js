@@ -27,7 +27,7 @@ const utilController = {
     GetRoleDetail: async (req, res) => {
         try {
 
-            const RoleData = await role.find();
+            const RoleData = await role.find({isAvailable:true});
 
             if (RoleData) {
                 UtilsResponse.success.message = "successfully data given.";

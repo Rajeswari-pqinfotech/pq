@@ -5,6 +5,10 @@ const roleSchema = Schema({
     rolename:{
         type:String
     },
+    isAvailable:{
+        type:Boolean,
+        default:true
+    },
     createdAt:{
         type:Date,
         default:new Date()

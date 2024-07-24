@@ -1,6 +1,7 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const shortid = require('shortid');
+const fs = require('fs');
 
 const employeemodel = require('../model/employeemodel.js');
 const attenModel = require('../model/attendancemodel.js');
@@ -18,17 +19,26 @@ const Employee = {
             req.body.password = pass;
             req.body.createdAt = new Date();
 
-            req.body.imgName = req.file.originalname;
-            req.body.imgContextType = req.file.mimetype;
-            req.body.imgData = req.file.buffer;
+            // req.body.imgName = req.file.originalname;
+            // req.body.imgContextType = req.file.mimetype;
+            // req.body.imgData = req.file.buffer;
+
             // // req.body.imgData = "Binary.createFromBase64("+req.body.imgData+",0)";
         //    console.log(req.body.imgData);
             const result = await new employeemodel(req.body).save();
             
+            if(!result){
+
+            }
+            else{ 
+            var imgDa = Buffer.from(req.body.imgData, 'base64');
+            fs.writeFileSync("./public/"+result._id+".jpeg", imgDa);
+
             const response = Employessresponse.success
-            response.message = "employee registered successfully."
+            response.message = "employee registered successfully, to Verifiy your account check your mail."
             // response.data[0] = result;
             res.send(response);
+            }
         }
         catch (error) {
             console.log(error)
@@ -259,11 +269,14 @@ const Employee = {
                 const updata = {
                     imgName: req.file.originalname,
                     imgContextType : req.file.mimetype,
-                    imgData : req.file.buffer
-                    // imgName:req.file.imgName,
+                    imgData : req.file.buffer,
                     // imgContextType:req.file.imgContextType,
                     // imgData:req.file.imgData
                 };
+                const bsimgName=req.file.imgName
+                var imgDa = Buffer.from(req.body.imgData, 'base64');
+                fs.writeFileSync("./public/"+req.body.id+".jpeg", imgDa);
+                
                 //  console.log(req.body.id);
                 const imgupdt = await employeeModel.findOneAndUpdate({_id:req.body.id},{$set:updata}).exec();
                 // console.log(imgupdt);

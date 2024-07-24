@@ -28,7 +28,7 @@ const utilController = {
         try {
 
             const RoleData = await role.find({isAvailable:true});
-
+            // console.log(RoleData)
             if (RoleData) {
                 UtilsResponse.success.message = "successfully data given.";
                 UtilsResponse.success.data = [];

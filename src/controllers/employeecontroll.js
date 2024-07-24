@@ -18,14 +18,13 @@ const Employee = {
             req.body.password = pass;
             req.body.createdAt = new Date();
 
-            // req.body.imgName = req.file.originalname;
-            // req.body.imgContextType = req.file.mimetype;
-            // req.body.imgData = req.file.buffer;
-            // req.body.imgData = "Binary.createFromBase64("+req.body.imgData+",0)";
-
-           
+            req.body.imgName = req.file.originalname;
+            req.body.imgContextType = req.file.mimetype;
+            req.body.imgData = req.file.buffer;
+            // // req.body.imgData = "Binary.createFromBase64("+req.body.imgData+",0)";
+        //    console.log(req.body.imgData);
             const result = await new employeemodel(req.body).save();
-
+            
             const response = Employessresponse.success
             response.message = "employee registered successfully."
             // response.data[0] = result;
@@ -258,13 +257,16 @@ const Employee = {
         try{
             if(req.file){
                 const updata = {
-                    imgName:req.body.imgName,
-                    imgContextType:req.body.imgContextType,
-                    imgData:req.body.imgData
+                    imgName: req.file.originalname,
+                    imgContextType : req.file.mimetype,
+                    imgData : req.file.buffer
+                    // imgName:req.file.imgName,
+                    // imgContextType:req.file.imgContextType,
+                    // imgData:req.file.imgData
                 };
-                // console.log(req.body.id);
-                const imgupdt = await employeeModel.findOneAndUpdate({_id:req.body.id},updata).exec();
-
+                //  console.log(req.body.id);
+                const imgupdt = await employeeModel.findOneAndUpdate({_id:req.body.id},{$set:updata}).exec();
+                // console.log(imgupdt);
                 Employessresponse.success.message="images uploaded successfully.";
                 Employessresponse.success.data=[];
                 res.send(Employessresponse.success);

@@ -13,7 +13,7 @@ router.get("/util/getRole",utilController.GetRoleDetail);
 router.post("/util/addVenue",utilController.AddVenueDetail);
 router.get("/util/getVenue",utilController.GetVenueDetail);
 
-router.post("/employee/register",upload.single('image'),Employee.Register);
+router.post("/employee/register",upload.single('image'),Employee.Register);//upload.single('image'),
 router.post("/employee/login",Employee.Login);
 router.post("/employee/logout",Employee.Logout);
 router.post("/employee/forgetpassword",Employee.ForgetPassword);

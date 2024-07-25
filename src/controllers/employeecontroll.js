@@ -227,7 +227,7 @@ const Employee = {
             // const emptoken = jwt.verify(tk, process.env.secreteKey);
 
             // var empid = emptoken.id;
-            const empid = req.body.employeeId;
+            const empid = req.params.empId;
             if (empid) {
 
                 const empData = await employeemodel.findOne({ employeeId: empid });

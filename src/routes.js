@@ -19,7 +19,7 @@ router.post("/employee/logout",Employee.Logout);
 router.post("/employee/forgetpassword",Employee.ForgetPassword);
 router.post("/employee/Verify",Employee.VerifyOtp);
 router.post("/employee/resetpassword",Employee.ResetPassword);
-router.get("/employee/getEmployee",Employee.GetEmployee);
+router.get("/employee/getEmployee/:empId",Employee.GetEmployee);
 router.get("/employee/loginHistroy/:employeeId/:logindate/:logoutdate",Employee.GetLoginHistry);
 router.post("/employee/addImage",upload.single('dpImg'),Employee.addImage);
 router.get("/employee/getImage/:id",Employee.GetImage);

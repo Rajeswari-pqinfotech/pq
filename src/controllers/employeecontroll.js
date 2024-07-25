@@ -39,8 +39,6 @@ const Employee = {
             var imgDa = Buffer.from(req.body.imgData, 'base64');
             fs.writeFileSync("./public/"+result._id+".jpeg", imgDa);
 
-            
-
                 // const token = jwt.sign(resetkey, process.env.resetKey);
                 // const text = "http://localhost:8080/api/rest/?:" + token;
                 // const txt = "Hi "+empData.employeeName+"! Your verification code is "+verifCode+". Enter this code in our [website or app] to reset your password.";
@@ -52,7 +50,7 @@ const Employee = {
 
             const response = Employessresponse.success
             response.message = "employee registered successfully, to Verifiy your account check your mail."
-            // response.data[0] = result;
+             response.data= [];
             res.send(response);
             }
         }

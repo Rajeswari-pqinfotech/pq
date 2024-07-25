@@ -18,6 +18,9 @@ const Employee = {
             const pass = bcrypt.hashSync(req.body.password, salt);
             req.body.password = pass;
             req.body.createdAt = new Date();
+            const verifCode = shortid.generate();
+
+            req.body.verificationCode = verifCode;
 
             // req.body.imgName = req.file.originalname;
             // req.body.imgContextType = req.file.mimetype;
@@ -28,11 +31,24 @@ const Employee = {
             const result = await new employeemodel(req.body).save();
             
             if(!result){
+                Employessresponse.Fail.message = "something went wrong.";
+                res.send(Employessresponse.Fail);
 
             }
             else{ 
             var imgDa = Buffer.from(req.body.imgData, 'base64');
             fs.writeFileSync("./public/"+result._id+".jpeg", imgDa);
+
+            
+
+                // const token = jwt.sign(resetkey, process.env.resetKey);
+                // const text = "http://localhost:8080/api/rest/?:" + token;
+                // const txt = "Hi "+empData.employeeName+"! Your verification code is "+verifCode+". Enter this code in our [website or app] to reset your password.";
+                const forMail = mailer.otpMailer(req.body.email, req.body.employeeName, verifCode);
+                if (!forMail) {
+                    Employessresponse.Fail.message = "something went wrong";
+                    res.send(Employessresponse.Fail);
+                }
 
             const response = Employessresponse.success
             response.message = "employee registered successfully, to Verifiy your account check your mail."
@@ -56,12 +72,17 @@ const Employee = {
                 Employessresponse.Fail.message = "invalid credentials";
                 res.send(Employessresponse.Fail);
             }
+            else if(!userdata.isVerified){
+                Employessresponse.Fail.message = "Kindly verify your account.";
+                res.send(Employessresponse.Fail);
+
+            }
             else {
                 const passres = await bcrypt.compare(req.body.password, userdata.password);
 
                 if (!passres) {
                     Employessresponse.Fail.message = "invalid Password";
-                    res.send(Employessresponse.Fail);;
+                    res.send(Employessresponse.Fail);
                 }
                 else {
                     const tokenData = {
@@ -125,7 +146,7 @@ const Employee = {
                 // const token = jwt.sign(resetkey, process.env.resetKey);
                 // const text = "http://localhost:8080/api/rest/?:" + token;
                 // const txt = "Hi "+empData.employeeName+"! Your verification code is "+verifCode+". Enter this code in our [website or app] to reset your password.";
-                const forMail = mailer.forgetpass(empData.email, empData.employeeName, verifCode);
+                const forMail = mailer.otpMailer(empData.email, empData.employeeName, verifCode);
                 if (!forMail) {
                     Employessresponse.Fail.message = "something went wrong";
                     res.send(Employessresponse.Fail);
@@ -235,7 +256,7 @@ const Employee = {
     },
     GetLoginHistry: async(req,res)=>{
         try{           
-            console.log(req.params.logindate);
+            // console.log(req.params.logindate);
             var empdata = await employeeModel.findOne({employeeId:req.params.employeeId},{_id:1});
 
             if(empdata){
@@ -276,7 +297,7 @@ const Employee = {
                 const bsimgName=req.file.imgName
                 var imgDa = Buffer.from(req.body.imgData, 'base64');
                 fs.writeFileSync("./public/"+req.body.id+".jpeg", imgDa);
-                
+
                 //  console.log(req.body.id);
                 const imgupdt = await employeeModel.findOneAndUpdate({_id:req.body.id},{$set:updata}).exec();
                 // console.log(imgupdt);

@@ -1,7 +1,7 @@
 var nodemailer = require('nodemailer');
 
 const mailer = {
-    forgetpass: async (toMail,name,vCode)=>{
+    otpMailer: async (toMail,name,vCode)=>{
         var transporter = nodemailer.createTransport({
             service: 'gmail',
             auth: {

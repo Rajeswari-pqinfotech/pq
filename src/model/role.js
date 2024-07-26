@@ -3,7 +3,12 @@ const Schema = mongodb.Schema;
 
 const roleSchema = Schema({
     rolename:{
-        type:String
+        type:String,
+        required:true
+    },
+    depCode:{
+        type:String,
+        required:true
     },
     isAvailable:{
         type:Boolean,

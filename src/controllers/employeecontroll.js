@@ -8,12 +8,20 @@ const attenModel = require('../model/attendancemodel.js');
 
 const Employessresponse = require('../utils/respondMessage.js');
 const mailer = require('../utils/Mailer.js');
+const roleModel = require('../model/role.js');
 const employeeModel = require('../model/employeemodel.js');
 
 const Employee = {
     Register: async (req, res) => {
         try {
-            //  console.log(req.body);
+
+            const roledata = await roleModel.findOne({_id:req.body.roleid,depCode:req.body.refCode});
+
+            if(!roledata){                
+                Employessresponse.Fail.message = "Refferal code is wrong.";
+                res.send(Employessresponse.Fail);
+            }
+
             const salt = await bcrypt.genSalt(10);
             const pass = bcrypt.hashSync(req.body.password, salt);
             req.body.password = pass;
@@ -48,7 +56,7 @@ const Employee = {
                     res.send(Employessresponse.Fail);
                 }
 
-            const response = Employessresponse.success
+            const response = Employessresponse.success;
             response.message = "employee registered successfully, to Verifiy your account check your mail."
              response.data= [];
             res.send(response);
@@ -73,7 +81,6 @@ const Employee = {
             else if(!userdata.isVerified){
                 Employessresponse.Fail.message = "Kindly verify your account.";
                 res.send(Employessresponse.Fail);
-
             }
             else {
                 const passres = await bcrypt.compare(req.body.password, userdata.password);
@@ -223,8 +230,8 @@ const Employee = {
 
             // const tk = req.headers.token;
             // const emptoken = jwt.verify(tk, process.env.secreteKey);
-
             // var empid = emptoken.id;
+            
             const empid = req.params.empId;
             if (empid) {
 

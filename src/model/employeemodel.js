@@ -47,11 +47,11 @@ const employeemodel = Schema({
         ref:'roles',
         autopopulate:true
     },
-    venueId:{
-        type:mongodb.Schema.ObjectId,
-        ref:'venues',
-        autopopulate:true
-    },
+    // venueId:{
+    //     type:mongodb.Schema.ObjectId,
+    //     ref:'venues',
+    //     autopopulate:true
+    // },
     createdAt: {
         type: Date
     }

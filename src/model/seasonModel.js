@@ -1,9 +1,8 @@
 const mongodb = require('mongoose');
-
 const Schema = mongodb.Schema;
 
-const venueModel = Schema({
-    venueName:{
+const seasonSchema = Schema({
+    seasonName:{
         type:String,
         required:true
     },
@@ -17,6 +16,6 @@ const venueModel = Schema({
     }
 });
 
-const venuemodel = mongodb.model('venues',venueModel);
+const seasonModel = mongodb.model('seasonTypes',seasonSchema);
 
-module.exports = venuemodel;
+module.exports = seasonModel;

@@ -36,6 +36,7 @@ const Employee = {
 
             // // req.body.imgData = "Binary.createFromBase64("+req.body.imgData+",0)";
         //    console.log(req.body.imgData);
+            
             const result = await new employeemodel(req.body).save();
             
             if(!result){
@@ -231,7 +232,7 @@ const Employee = {
             // const tk = req.headers.token;
             // const emptoken = jwt.verify(tk, process.env.secreteKey);
             // var empid = emptoken.id;
-            
+
             const empid = req.params.empId;
             if (empid) {
 

@@ -13,6 +13,10 @@ const attmdl = Schema({
     },
     logedout:{
         type:Date
+    },
+    createdAt:{
+        type:Date,
+        default:new Date()
     }
     // logedin:{
     //     type:Array,

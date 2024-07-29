@@ -37,6 +37,10 @@ const clientSchema = Schema({
         type:mongodb.Schema.ObjectId,
         ref:'employees',
         autopopulate:true
+    },
+    createdAt:{
+        type:Date,
+        default:new Date()
     }
 });
 clientSchema.plugin(mongoautopopulate);

@@ -1,9 +1,8 @@
 const mongodb = require('mongoose');
-
 const Schema = mongodb.Schema;
 
-const venueModel = Schema({
-    venueName:{
+const emiSchema = Schema({
+    emiName:{
         type:String,
         required:true
     },
@@ -17,6 +16,6 @@ const venueModel = Schema({
     }
 });
 
-const venuemodel = mongodb.model('venues',venueModel);
+const emiModel = mongodb.model('emi',emiSchema);
 
-module.exports = venuemodel;
+module.exports = emiModel;

@@ -12,6 +12,10 @@ router.post("/util/addRole",utilController.AddRoleDetail);
 router.get("/util/getRole",utilController.GetRoleDetail);
 router.post("/util/addVenue",utilController.AddVenueDetail);
 router.get("/util/getVenue",utilController.GetVenueDetail);
+router.get("/util/getSeasonlist",utilController.GetSeasonDetail);
+router.get("/util/getMembershipList",utilController.GetMembershipPlan);
+router.get("/util/getUnitMember",utilController.GetMembershipUnit);
+router.get("/util/getEmiList",utilController.GetEMIDetail);
 
 router.post("/employee/register",upload.single('image'),Employee.Register);//upload.single('image'),
 router.post("/employee/login",Employee.Login);

@@ -13,6 +13,10 @@ app.use(express.json());
 app.use(express.urlencoded({extended:true}));
 app.use(express.static('./'));
 
+app.get('/test',async(req,res)=>{
+    res.send('server running...');
+});
+
 app.use('/',router);
 
 app.listen(process.env.PORT,()=>{

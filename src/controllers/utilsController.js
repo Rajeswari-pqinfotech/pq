@@ -10,7 +10,7 @@ const utilController = {
     AddRoleDetail: async (req, res) => {
         try {
 
-            const RoleData = await new role({ rolename: req.body.rolename }).save();
+            const RoleData = await new role({ rolename: req.body.rolename,depCode:req.body.depCode }).save();
 
             if (RoleData) {
                 UtilsResponse.success.message = "successfully data added.";

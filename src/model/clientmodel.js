@@ -44,6 +44,6 @@ const clientSchema = Schema({
     }
 });
 clientSchema.plugin(mongoautopopulate);
-const clientModel = mongodb.Model('clients',clientSchema);
+const clientModel = mongodb.model('clients',clientSchema);
 
 module.exports = clientModel;

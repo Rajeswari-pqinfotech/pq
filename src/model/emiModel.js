@@ -16,6 +16,6 @@ const emiSchema = Schema({
     }
 });
 
-const emiModel = mongodb.model('emi',emiSchema);
+const emiModel = mongodb.model('emis',emiSchema);
 
 module.exports = emiModel;

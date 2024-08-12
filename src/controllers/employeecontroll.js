@@ -15,52 +15,58 @@ const Employee = {
     Register: async (req, res) => {
         try {
 
-            const roledata = await roleModel.findOne({_id:req.body.roleid,depCode:req.body.refCode});
-
-            if(!roledata){                
+            const roledata = await roleModel.findOne({ _id: req.body.roleid, depCode: req.body.refCode });
+            var autoEmpId = req.body.refCode.split('_');
+            
+            if (!roledata) {
                 Employessresponse.Fail.message = "Refferal code is wrong.";
                 res.send(Employessresponse.Fail);
             }
+            else {
 
-            const salt = await bcrypt.genSalt(10);
-            const pass = bcrypt.hashSync(req.body.password, salt);
-            req.body.password = pass;
-            req.body.createdAt = new Date();
-            const verifCode = shortid.generate();
+                const salt = await bcrypt.genSalt(10);
+                const pass = bcrypt.hashSync(req.body.password, salt);
+                req.body.password = pass;
+                req.body.createdAt = new Date();
+                const verifCode = shortid.generate();
 
-            req.body.verificationCode = verifCode;
+                req.body.verificationCode = verifCode;
 
-            // req.body.imgName = req.file.originalname;
-            // req.body.imgContextType = req.file.mimetype;
-            // req.body.imgData = req.file.buffer;
+                // req.body.imgName = req.file.originalname;
+                // req.body.imgContextType = req.file.mimetype;
+                // req.body.imgData = req.file.buffer;
 
-            // // req.body.imgData = "Binary.createFromBase64("+req.body.imgData+",0)";
-        //    console.log(req.body.imgData);
-            
-            const result = await new employeemodel(req.body).save();
-            
-            if(!result){
-                Employessresponse.Fail.message = "something went wrong.";
-                res.send(Employessresponse.Fail);
+                // // req.body.imgData = "Binary.createFromBase64("+req.body.imgData+",0)";
+                //    console.log(req.body.imgData);
 
-            }
-            else{ 
-            var imgDa = Buffer.from(req.body.imgData, 'base64');
-            fs.writeFileSync("./public/"+result._id+".jpeg", imgDa);
+                const countemp = await employeeModel.find().count();
+                req.body.employeeId = autoEmpId[0]+'_'+autoEmpId[1]+'_'+(countemp+1);
+                // console.log(req.body.employeeId);
+                const result = await new employeemodel(req.body).save();
 
-                // const token = jwt.sign(resetkey, process.env.resetKey);
-                // const text = "http://localhost:8080/api/rest/?:" + token;
-                // const txt = "Hi "+empData.employeeName+"! Your verification code is "+verifCode+". Enter this code in our [website or app] to reset your password.";
-                const forMail = mailer.otpMailer(req.body.email, req.body.employeeName, verifCode);
-                if (!forMail) {
-                    Employessresponse.Fail.message = "something went wrong";
+                if (!result) {
+                    Employessresponse.Fail.message = "something went wrong.";
                     res.send(Employessresponse.Fail);
-                }
 
-            const response = Employessresponse.success;
-            response.message = "employee registered successfully, to Verifiy your account check your mail."
-             response.data= [];
-            res.send(response);
+                }
+                else {
+                    var imgDa = Buffer.from(req.body.imgData, 'base64');
+                    fs.writeFileSync("./public/" + result._id + ".jpeg", imgDa);
+
+                    // const token = jwt.sign(resetkey, process.env.resetKey);
+                    // const text = "http://localhost:8080/api/rest/?:" + token;
+                    // const txt = "Hi "+empData.employeeName+"! Your verification code is "+verifCode+". Enter this code in our [website or app] to reset your password.";
+                    const forMail = mailer.otpMailer(req.body.email, req.body.employeeName, verifCode);
+                    if (!forMail) {
+                        Employessresponse.Fail.message = "something went wrong";
+                        res.send(Employessresponse.Fail);
+                    }
+
+                    const response = Employessresponse.success;
+                    response.message = "employee registered successfully, to Verifiy your account check your mail."
+                    response.data = [];
+                    res.send(response);
+                }
             }
         }
         catch (error) {
@@ -71,15 +77,16 @@ const Employee = {
     },
     Login: async (req, res) => {
         try {
-            const response = Employessresponse.success
+            const response = Employessresponse.success;
+            response.data=[];
 
-            var userdata = await employeemodel.findOne({ employeeId: req.body.employeeId },{imgName:0,imgContextType:0,imgData:0});
+            var userdata = await employeemodel.findOne({ email: req.body.email }, { imgName: 0, imgContextType: 0, imgData: 0 });
 
             if (!userdata) {
                 Employessresponse.Fail.message = "invalid credentials";
                 res.send(Employessresponse.Fail);
             }
-            else if(!userdata.isVerified){
+            else if (!userdata.isVerified) {
                 Employessresponse.Fail.message = "Kindly verify your account.";
                 res.send(Employessresponse.Fail);
             }
@@ -102,10 +109,13 @@ const Employee = {
                     // const logintm = {days:new Date()};
                     // const logupdt = await attenModel.findOneAndUpdate({emprefid:userdata._id},{$push:{logedin:logintm}},{ new: true, upsert: true }).exec();
                     const logupdt = await new attenModel(logindata).save();
-
-                    userdata._doc = { ...userdata._doc, token, loginTime: logindata.logedin };
+                    var imgdata = "http://10.167.22.106:8080/public/"+userdata._id+".jpeg";
+                    // console.log(imgdata);
+                    // userdata._doc = { ...userdata._doc, token,imgpath:imgdata, loginTime: logindata.logedin };
+                    userdata._doc = { ...userdata._doc,imgpath:imgdata, loginTime: logindata.logedin };
                     userdata = userdata._doc;
-
+                    console.log(userdata)
+                    // response.data[0]=[];
                     response.data[0] = userdata;
                     res.send(response);
                 }
@@ -158,7 +168,7 @@ const Employee = {
                     res.send(Employessresponse.Fail);
                 }
                 else {
-                    const vData = await employeemodel.findOneAndUpdate({ _id: empData._id }, { verificationCode: verifCode,isVerified:false }).exec();
+                    const vData = await employeemodel.findOneAndUpdate({ _id: empData._id }, { verificationCode: verifCode, isVerified: false }).exec();
                     if (!vData) {
                         Employessresponse.Fail.message = "something went wrong";
                         res.send(Employessresponse.Fail);
@@ -177,26 +187,26 @@ const Employee = {
             res.send(Employessresponse.Error);
         }
     },
-    VerifyOtp:async(req,res)=>{
-        try{
+    VerifyOtp: async (req, res) => {
+        try {
 
-            const refData = await employeemodel.findOneAndUpdate({ verificationCode: req.body.referalCode, isVerified:false},{isVerified:true}).exec();
-            
-            if(!refData){
+            const refData = await employeemodel.findOneAndUpdate({ verificationCode: req.body.referalCode, isVerified: false }, { isVerified: true }).exec();
+
+            if (!refData) {
                 Employessresponse.Fail.message = "Code is already verified or invalid code.";
                 res.send(Employessresponse.Fail);
             }
-            else{
-                Employessresponse.success.message="code is verified successfully.";
-                const dt = {empId:refData.employeeId};
-                Employessresponse.success.data=[];
-                Employessresponse.success.data[0]=dt;
+            else {
+                Employessresponse.success.message = "code is verified successfully.";
+                const dt = { empId: refData.employeeId };
+                Employessresponse.success.data = [];
+                Employessresponse.success.data[0] = dt;
                 res.send(Employessresponse.success);
             }
 
         }
-        catch(error){
-            Employessresponse.Error.message=error;
+        catch (error) {
+            Employessresponse.Error.message = error;
             res.send(Employessresponse.Error);
         }
     },
@@ -216,8 +226,8 @@ const Employee = {
             }
             else {
                 Employessresponse.success.message = "password updated successfully.";
-                Employessresponse.success.data=[];
-                Employessresponse.success.data[0]=empUpdata;
+                Employessresponse.success.data = [];
+                Employessresponse.success.data[0] = empUpdata;
                 res.send(Employessresponse.success);
             }
         }
@@ -225,7 +235,7 @@ const Employee = {
             Employessresponse.Error.message = error;
             res.send(Employessresponse.Error);
         }
-    },    
+    },
     GetEmployee: async (req, res) => {
         try {
 
@@ -260,58 +270,58 @@ const Employee = {
             res.send(Employessresponse.Error);
         }
     },
-    GetLoginHistry: async(req,res)=>{
-        try{           
+    GetLoginHistry: async (req, res) => {
+        try {
             // console.log(req.params.logindate);
-            var empdata = await employeeModel.findOne({employeeId:req.params.employeeId},{_id:1});
+            var empdata = await employeeModel.findOne({ employeeId: req.params.employeeId }, { _id: 1 });
 
-            if(empdata){
+            if (empdata) {
                 var quer = {
-                    emprefid:empdata._id
+                    emprefid: empdata._id
                 };
-                if(req.params.logindate)
-                    quer = {...quer,logedin:{$gte:req.params.logindate}};
-                if(req.params.logoutdate)
-                    quer = {...quer,logedout:{$lte:req.params.logoutdate}};
-                    
-                const logdata = await attenModel.find(quer,{_id:0,emprefid:0,__v:0});
-                
-                Employessresponse.success.data=[];
-                for(loghis of logdata)
-                Employessresponse.success.data.push(loghis);
+                if (req.params.logindate)
+                    quer = { ...quer, logedin: { $gte: req.params.logindate } };
+                if (req.params.logoutdate)
+                    quer = { ...quer, logedout: { $lte: req.params.logoutdate } };
+
+                const logdata = await attenModel.find(quer, { _id: 0, emprefid: 0, __v: 0 });
+
+                Employessresponse.success.data = [];
+                for (loghis of logdata)
+                    Employessresponse.success.data.push(loghis);
                 res.send(Employessresponse.success);
             }
-            else{
+            else {
                 Employessresponse.Fail.message = "invalid employee id.";
                 res.send(Employessresponse.Fail);
             }
-        }catch(error){
+        } catch (error) {
             Employessresponse.Error.message = error;
             res.send(Employessresponse.Error);
         }
     },
-    addImage:async(req,res)=>{
-        try{
-            if(req.file){
+    addImage: async (req, res) => {
+        try {
+            if (req.file) {
                 const updata = {
                     imgName: req.file.originalname,
-                    imgContextType : req.file.mimetype,
-                    imgData : req.file.buffer,
+                    imgContextType: req.file.mimetype,
+                    imgData: req.file.buffer,
                     // imgContextType:req.file.imgContextType,
                     // imgData:req.file.imgData
                 };
-                const bsimgName=req.file.imgName
+                const bsimgName = req.file.imgName
                 var imgDa = Buffer.from(req.body.imgData, 'base64');
-                fs.writeFileSync("./public/"+req.body.id+".jpeg", imgDa);
+                fs.writeFileSync("./public/" + req.body.id + ".jpeg", imgDa);
 
                 //  console.log(req.body.id);
-                const imgupdt = await employeeModel.findOneAndUpdate({_id:req.body.id},{$set:updata}).exec();
+                const imgupdt = await employeeModel.findOneAndUpdate({ _id: req.body.id }, { $set: updata }).exec();
                 // console.log(imgupdt);
-                Employessresponse.success.message="images uploaded successfully.";
-                Employessresponse.success.data=[];
+                Employessresponse.success.message = "images uploaded successfully.";
+                Employessresponse.success.data = [];
                 res.send(Employessresponse.success);
-            }else{
-                Employessresponse.Fail.message="Images is missing";
+            } else {
+                Employessresponse.Fail.message = "Images is missing";
                 res.send(Employessresponse.Fail);
             }
         }
@@ -320,23 +330,24 @@ const Employee = {
             res.status(500).send('Error retrieving image');
         }
     },
-    GetImage:async(req,res)=>{
+    GetImage: async (req, res) => {
         try {
-            const image = await employeeModel.findById({_id:req.params.id});
-    
+            const image = await employeeModel.findById({ _id: req.params.id });
+            
             if (!image) {
                 Employessresponse.Fail.message = "image not found.";
                 res.send(Employessresponse.Fail);
             }
-            
+
             var img = Buffer.from(image.imgData, 'base64');
 
             res.writeHead(200, {
                 'Content-Type': image.imgContextType,
+                // 'Content-Type':'image/jpeg',
                 'Content-Length': img.length
             });
-            res.end(img); 
-          
+            res.end(img);
+
             // Set response headers to serve the image
             // res.set('Content-Type', image.imgContextType);
             // res.send(image);

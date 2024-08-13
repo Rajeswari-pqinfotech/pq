@@ -39,9 +39,9 @@ const Employee = {
                 // // req.body.imgData = "Binary.createFromBase64("+req.body.imgData+",0)";
                 //    console.log(req.body.imgData);
 
-                const countemp = await employeeModel.find().count();
+                const countemp = await employeeModel.find().countDocuments();
                 req.body.employeeId = autoEmpId[0]+'_'+autoEmpId[1]+'_'+(countemp+1);
-                // console.log(req.body.employeeId);
+                 console.log(req.body.employeeId);
                 const result = await new employeemodel(req.body).save();
 
                 if (!result) {

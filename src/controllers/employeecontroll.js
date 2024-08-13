@@ -120,7 +120,7 @@ const Employee = {
                     };
 
                     // const token = jwt.sign(tokenData, process.env.secreteKey);
-                    const logindata = { emprefid: userdata._id, logedin: Date.now(),empAddress:req.body.address,empLatitude:req.body.lat,empLongitude:req.body.lng };
+                    const logindata = { emprefid: userdata._id, logedin: Date.now(),lginAddress:req.body.address,lginLatitude:req.body.lat,lginLongitude:req.body.lng };
 
                     // const logintm = {days:new Date()};
                     // const logupdt = await attenModel.findOneAndUpdate({emprefid:userdata._id},{$push:{logedin:logintm}},{ new: true, upsert: true }).exec();
@@ -148,7 +148,7 @@ const Employee = {
             // const logdt = {days:new Date()};
             // const logData = await attenModel.findOneAndUpdate({emprefid:req.body.employeeId},{$push:{logedout:logdt}},{new:true,upsert:true}).exec();
 
-            const logoutdata = await attenModel.findOneAndUpdate({ emprefid: req.body.id }, { logedout: Date.now() }).sort({ logedin: -1 }).exec();
+            const logoutdata = await attenModel.findOneAndUpdate({ emprefid: req.body.id }, { logedout: Date.now(),lgoAddress:req.body.address,lgoLatitude:req.body.lat,lgoLongitude:req.body.lng }).sort({ logedin: -1 }).exec();
 
             if (logoutdata) {
                 Employessresponse.success.message = "Logged of successfully";

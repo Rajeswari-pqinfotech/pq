@@ -11,6 +11,18 @@ const attmdl = Schema({
     logedin:{
         type:Date
     },
+    empAddress:{
+        type:String,
+        required:[true,"address is missing."]
+    },
+    empLatitude:{
+        type:Number,
+        required:[true,"latitude is missing."]
+    },
+    empLongitude:{
+        type:Number,
+        required:[true,"longitude is missing."]
+    },
     logedout:{
         type:Date
     },

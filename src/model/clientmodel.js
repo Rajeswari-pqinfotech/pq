@@ -22,6 +22,14 @@ const clientSchema = Schema({
         type:String,
         required:[true,"gender is missing."]
     },
+    age:{
+        type:Number,
+        required:[true,"age is missing."]
+    },
+    maritalStatus:{
+        type:String,
+        required:[true,"marital Status is missing."]
+    },
     occupation:{
         type:String,
         required:[true,"occupation is missing."]
@@ -32,6 +40,12 @@ const clientSchema = Schema({
     venue:{
         type:String,
         required:[true,"address is missing."]
+    },
+    latitudeClient:{
+        type:Number
+    },
+    longitudeClient:{
+        type:Number
     },
     empRefId:{
         type:mongodb.Schema.ObjectId,
@@ -44,6 +58,43 @@ const clientSchema = Schema({
     }
 });
 clientSchema.plugin(mongoautopopulate);
+
+
+
 const clientModel = mongodb.model('clients',clientSchema);
 
 module.exports = clientModel;
+
+
+// coordinates: {
+//     type: { type: String }, // 'Point' for GeoJSON
+//     coordinates: [Number]   // [longitude, latitude]
+//   },
+
+// Create a 2dsphere index to enable geospatial queries
+// clientSchema.index({ coordinates: '2dsphere' });
+
+// .find({
+//     coordinates: {
+//       $near: {
+//         $geometry: {
+//           type: 'Point',
+//           coordinates: [longitude, latitude]
+//         },
+//         $maxDistance: 10000 // distance in meters
+//       }
+//     }
+//   }
+
+
+// const newLocation = new Location({
+//     name: 'Some Place',
+//     coordinates: {
+//       type: 'Point',
+//       coordinates: [longitude, latitude] // e.g., [-73.97, 40.77]
+//     }
+//   });
+// newLocation.save((err) => {
+//     if (err) console.error(err);
+//     else console.log('Location saved successfully!');
+//   });

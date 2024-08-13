@@ -15,7 +15,7 @@ const Employee = {
     Register: async (req, res) => {
         try {
 
-            const roledata = await roleModel.findOne({ _id: req.body.roleid});//, depCode: req.body.refCode 
+            const roledata = await roleModel.findOne({ _id: req.body.roleid, depCode: req.body.refCode });//
             var autoEmpId = req.body.refCode.split('_');
             
             if (!roledata) {

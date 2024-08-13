@@ -1,6 +1,7 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const shortid = require('shortid');
+const crypto = require('crypto');
 const fs = require('fs');
 
 const employeemodel = require('../model/employeemodel.js');
@@ -10,6 +11,20 @@ const Employessresponse = require('../utils/respondMessage.js');
 const mailer = require('../utils/Mailer.js');
 const roleModel = require('../model/role.js');
 const employeeModel = require('../model/employeemodel.js');
+
+
+
+function generateSecureRandomSixDigitNumber() {
+  // Generate 3 bytes of random data and convert it to a number
+  const randomBytes = crypto.randomBytes(3);
+  const randomNumber = randomBytes.readUIntBE(0, 3);
+
+  // Ensure the number is within the 6-digit range
+  const sixDigitNumber = (randomNumber % 900000) + 100000;
+
+  return sixDigitNumber;
+}
+
 
 const Employee = {
     Register: async (req, res) => {
@@ -28,7 +43,8 @@ const Employee = {
                 const pass = bcrypt.hashSync(req.body.password, salt);
                 req.body.password = pass;
                 req.body.createdAt = new Date();
-                const verifCode = shortid.generate();
+                // const verifCode = shortid.generate();
+                const verifCode = generateSecureRandomSixDigitNumber();
 
                 req.body.verificationCode = verifCode;
 
@@ -41,7 +57,7 @@ const Employee = {
 
                 const countemp = await employeeModel.find().countDocuments();
                 req.body.employeeId = autoEmpId[0]+'_'+autoEmpId[1]+'_'+(countemp+1);
-                 console.log(req.body.employeeId);
+                 
                 const result = await new employeemodel(req.body).save();
 
                 if (!result) {
@@ -157,7 +173,10 @@ const Employee = {
                 res.send(Employessresponse.Fail);
             }
             else {
-                const verifCode = shortid.generate();
+                // const verifCode = shortid.generate();
+                const verifCode = generateSecureRandomSixDigitNumber();
+
+                
 
                 // const token = jwt.sign(resetkey, process.env.resetKey);
                 // const text = "http://localhost:8080/api/rest/?:" + token;

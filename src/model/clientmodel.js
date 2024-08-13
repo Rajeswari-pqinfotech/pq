@@ -33,6 +33,14 @@ const clientSchema = Schema({
         type:String,
         required:[true,"address is missing."]
     },
+    clinetage:{
+        type:Number,
+        required:[true,"age is missing"]
+    },
+    maritalStatus:{
+        type:string,
+        required:[true,"marital status is missing"]
+    },
     empRefId:{
         type:mongodb.Schema.ObjectId,
         ref:'employees',

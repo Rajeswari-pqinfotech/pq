@@ -6,7 +6,7 @@ const Employessresponse={
         data:[]
     },
     Fail:{
-        code:400,
+        code:200,
         status:"Fail",
         message:"Fail",
         data:[]

@@ -86,8 +86,14 @@ const Employee = {
             }
         }
         catch (error) {
-            console.log(error)
+            // console.log(error)
+            if (error.errorResponse.code === 11000) {                
+                Employessresponse.Error.code = "200";
+                Employessresponse.Error.message = error.errorResponse.keyValue+" is already exits.";
+            }
+            else
             Employessresponse.Error.message = error;
+        
             res.send(Employessresponse.Error);
         }
     },

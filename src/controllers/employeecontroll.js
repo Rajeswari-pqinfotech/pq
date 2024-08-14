@@ -208,7 +208,7 @@ const Employee = {
                     res.send(Employessresponse.Fail);
                 }
                 else {
-                    const vData = await employeemodel.findOneAndUpdate({ _id: empData._id }, { resetCode: verifCode,isReset:false }).exec();
+                    const vData = await employeemodel.findOneAndUpdate({ _id: empData._id }, { resetCode: verifCode, isReset: false }).exec();
                     if (!vData) {
                         Employessresponse.Fail.message = "something went wrong";
                         res.send(Employessresponse.Fail);
@@ -242,19 +242,19 @@ const Employee = {
             //     res.send(Employessresponse.Fail);
             // } 
             // else {
-                // const refData = await employeemodel.findOneAndUpdate(query, setQuery).exec();
-                // console.log(refData);
-                if (!refData) {
-                    Employessresponse.Fail.message = "Code is already verified or invalid code or code is missing.";
-                    res.send(Employessresponse.Fail);
-                }
-                else {
-                    Employessresponse.success.message = "code is verified successfully.";
-                    const dt = { empId: refData._id };
-                    Employessresponse.success.data = [];
-                    Employessresponse.success.data[0] = dt;
-                    res.send(Employessresponse.success);
-                }
+            // const refData = await employeemodel.findOneAndUpdate(query, setQuery).exec();
+            // console.log(refData);
+            if (!refData) {
+                Employessresponse.Fail.message = "Code is already verified or invalid code or code is missing.";
+                res.send(Employessresponse.Fail);
+            }
+            else {
+                Employessresponse.success.message = "code is verified successfully.";
+                const dt = { empId: refData._id };
+                Employessresponse.success.data = [];
+                Employessresponse.success.data[0] = dt;
+                res.send(Employessresponse.success);
+            }
             // }
         }
         catch (error) {
@@ -377,9 +377,16 @@ const Employee = {
                 // const imgupdt = await employeeModel.findOneAndUpdate({ _id: req.body.id }, { $set: updata }).exec();
                 const imgupdt = await employeeModel.findOneAndUpdate({ _id: req.body.id }, { $set: { imgData: req.body.imgData } }).exec();
                 // console.log(imgupdt);
-                Employessresponse.success.message = "images uploaded successfully.";
-                Employessresponse.success.data = [];
-                res.send(Employessresponse.success);
+                if (!imgupdt) {
+                    Employessresponse.Fail.message = "Something went wrong.";
+                    res.send(Employessresponse.Fail);
+                }
+                else {
+                    const res = { imgpath: process.env.imgPath + "/public/" + imgupdt._id + ".jpeg" };
+                    Employessresponse.success.message = "images uploaded successfully.";
+                    Employessresponse.success.data = [res];
+                    res.send(Employessresponse.success);
+                }
             } else {
                 Employessresponse.Fail.message = "Images is missing";
                 res.send(Employessresponse.Fail);

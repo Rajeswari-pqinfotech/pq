@@ -14,9 +14,10 @@ const clientSchema = Schema({
         unique:true
     },
     clientEmail:{
-        type:String,
-        required:[true,"email id is missing"],
-        unique:true
+        type:String
+        // type:String,
+        // required:[true,"email id is missing"],
+        // unique:true
     },
     gender:{
         type:String,

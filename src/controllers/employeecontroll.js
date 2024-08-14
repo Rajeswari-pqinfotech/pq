@@ -89,11 +89,13 @@ const Employee = {
             // console.log(error)
             if (error.errorResponse.code === 11000) {                
                 Employessresponse.Error.code = "200";
-                Employessresponse.Error.message = error.errorResponse.keyValue+" is already exits.";
+                let objkey = Object.keys(error.errorResponse.keyPattern);
+                let keyval = Object.values(error.errorResponse.keyValue);
+                Employessresponse.Error.message = objkey[0]+" : "+keyval[0]+" is already exits.";
             }
             else
             Employessresponse.Error.message = error;
-        
+
             res.send(Employessresponse.Error);
         }
     },
@@ -223,7 +225,7 @@ const Employee = {
             }
             else {
                 Employessresponse.success.message = "code is verified successfully.";
-                const dt = { empId: refData.employeeId };
+                const dt = { empId: refData._id };
                 Employessresponse.success.data = [];
                 Employessresponse.success.data[0] = dt;
                 res.send(Employessresponse.success);
@@ -244,7 +246,7 @@ const Employee = {
             const salt = await bcrypt.genSalt(10);
             const pass = bcrypt.hashSync(req.body.password, salt);
 
-            const empUpdata = await employeemodel.findOneAndUpdate({ employeeId: req.body.employeeId }, { $set: { password: pass } }).exec();
+            const empUpdata = await employeemodel.findOneAndUpdate({ _id: req.body.employeeId }, { $set: { password: pass } }).exec();
             if (!empUpdata) {
                 Employessresponse.Fail.message = "Invalid referal code."
                 res.send(Employessresponse.Fail);
@@ -271,7 +273,7 @@ const Employee = {
             const empid = req.params.empId;
             if (empid) {
 
-                const empData = await employeemodel.findOne({ employeeId: empid });
+                const empData = await employeemodel.findOne({ _id: empid });
 
                 if (empData) {
                     Employessresponse.success.message = "successfully data given."
@@ -298,16 +300,20 @@ const Employee = {
     GetLoginHistry: async (req, res) => {
         try {
             // console.log(req.params.logindate);
-            var empdata = await employeeModel.findOne({ employeeId: req.params.employeeId }, { _id: 1 });
-
+            const {empId,loginDate,logoutDate} = req.query;
+            // var empdata = await employeeModel.findOne({ _id: req.params.employeeId }, { _id: 1 });
+            var empdata = await employeeModel.findOne({ _id: empId }, { _id: 1 });
+           
             if (empdata) {
                 var quer = {
                     emprefid: empdata._id
                 };
-                if (req.params.logindate)
-                    quer = { ...quer, logedin: { $gte: req.params.logindate } };
-                if (req.params.logoutdate)
-                    quer = { ...quer, logedout: { $lte: req.params.logoutdate } };
+                if (loginDate)
+                    quer = { ...quer, logedin: { $gte: req.loginDate } };
+                // quer = { ...quer, logedin: { $gte: req.params.logindate } };
+                if (logoutDate)
+                    quer = { ...quer, logedout: { $lte: logoutDate } };
+                // quer = { ...quer, logedout: { $lte: req.params.logoutdate } };
 
                 const logdata = await attenModel.find(quer, { _id: 0, emprefid: 0, __v: 0 });
 

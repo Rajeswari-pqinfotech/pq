@@ -69,7 +69,7 @@ const Employee = {
                         req.body.employeeId = autoEmpId[0] + '_' + autoEmpId[1] + '_' + (countemp + 1);
 
                         result = await new employeemodel(req.body).save();
-                        }
+                    }
                     else {
                         result = await employeemodel.findOneAndUpdate({ email: req.body.email, isVerified: false }, { $set: req.body }).exec();
                     }
@@ -80,9 +80,9 @@ const Employee = {
 
                     }
                     else {
-                        if(req.body.imgData){                            
-                        var imgDa = Buffer.from(req.body.imgData, 'base64');
-                        fs.writeFileSync("./public/" + result._id + ".jpeg", imgDa);
+                        if (req.body.imgData) {
+                            var imgDa = Buffer.from(req.body.imgData, 'base64');
+                            fs.writeFileSync("./public/" + result._id + ".jpeg", imgDa);
                         }
 
                         // const token = jwt.sign(resetkey, process.env.resetKey);
@@ -143,8 +143,8 @@ const Employee = {
                     // const logintm = {days:new Date()};
                     // const logupdt = await attenModel.findOneAndUpdate({emprefid:userdata._id},{$push:{logedin:logintm}},{ new: true, upsert: true }).exec();
                     const logupdt = await new attenModel(logindata).save();
-                    if(userdata.imgData)
-                       var imgdata = process.env.imgPath + "/public/" + userdata._id + ".jpeg";
+                    if (userdata.imgData)
+                        var imgdata = process.env.imgPath + "/public/" + userdata._id + ".jpeg";
                     else
                         var imgdata = null;
                     // console.log(imgdata);
@@ -208,7 +208,7 @@ const Employee = {
                     res.send(Employessresponse.Fail);
                 }
                 else {
-                    const vData = await employeemodel.findOneAndUpdate({ _id: empData._id }, { resetCode: verifCode}).exec();
+                    const vData = await employeemodel.findOneAndUpdate({ _id: empData._id }, { resetCode: verifCode }).exec();
                     if (!vData) {
                         Employessresponse.Fail.message = "something went wrong";
                         res.send(Employessresponse.Fail);
@@ -229,36 +229,36 @@ const Employee = {
     },
     VerifyOtp: async (req, res) => {
         try {
-            var query={};
-            var setQuery={};
-            if(req.body.referalCode){
-                query={verificationCode: req.body.referalCode, isVerified: false};
-                setQuery={isVerified: true};
+            var refData = "";
+            if (req.body.referalCode) {
+                refData = await employeemodel.findOneAndUpdate({ verificationCode: req.body.referalCode, isVerified: false }, { isVerified: true }).exec();
             }
-            else if(req.body.resetCode){
-                query={resetCode: req.body.resetCode, isReseted: false};
-                setQuery={isReseted: true};
-            }
-            if(!query && !setQuery){                
-                Employessresponse.Fail.message = "Code is empty.";
-                res.send(Employessresponse.Fail);
-            }else{
-            const refData = await employeemodel.findOneAndUpdate(query, setQuery).exec();
+            else if (req.body.resetCode) {
+                refData = await employeemodel.findOneAndUpdate({ resetCode: req.body.resetCode, isReset: false }, { isReset: true }).exec();
 
-            if (!refData) {
-                Employessresponse.Fail.message = "Code is already verified or invalid code.";
-                res.send(Employessresponse.Fail);
             }
-            else {
-                Employessresponse.success.message = "code is verified successfully.";
-                const dt = { empId: refData._id };
-                Employessresponse.success.data = [];
-                Employessresponse.success.data[0] = dt;
-                res.send(Employessresponse.success);
-            }
-        }
+            // if (!query && !setQuery) {
+            //     Employessresponse.Fail.message = "Code is empty.";
+            //     res.send(Employessresponse.Fail);
+            // } 
+            // else {
+                // const refData = await employeemodel.findOneAndUpdate(query, setQuery).exec();
+                // console.log(refData);
+                if (!refData) {
+                    Employessresponse.Fail.message = "Code is already verified or invalid code or code is missing.";
+                    res.send(Employessresponse.Fail);
+                }
+                else {
+                    Employessresponse.success.message = "code is verified successfully.";
+                    const dt = { empId: refData._id };
+                    Employessresponse.success.data = [];
+                    Employessresponse.success.data[0] = dt;
+                    res.send(Employessresponse.success);
+                }
+            // }
         }
         catch (error) {
+            console.log(error);
             Employessresponse.Error.message = error;
             res.send(Employessresponse.Error);
         }
@@ -375,7 +375,7 @@ const Employee = {
 
                 //  console.log(req.body.id);
                 // const imgupdt = await employeeModel.findOneAndUpdate({ _id: req.body.id }, { $set: updata }).exec();
-                const imgupdt = await employeeModel.findOneAndUpdate({ _id: req.body.id }, { $set:{imgData:req.body.imgData} }).exec();
+                const imgupdt = await employeeModel.findOneAndUpdate({ _id: req.body.id }, { $set: { imgData: req.body.imgData } }).exec();
                 // console.log(imgupdt);
                 Employessresponse.success.message = "images uploaded successfully.";
                 Employessresponse.success.data = [];

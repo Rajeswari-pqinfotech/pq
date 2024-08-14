@@ -16,7 +16,7 @@ const clientController = {
         }
         catch (error) {
             if (error.errorResponse.code === 11000) {
-                clientResponse.Error.code = "200",
+                clientResponse.Error.code = 200,
                 clientResponse.Error.message = "Mobile number is already exits.";
             }
             else

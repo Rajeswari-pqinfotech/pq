@@ -15,14 +15,14 @@ const employeeModel = require('../model/employeemodel.js');
 
 
 function generateSecureRandomSixDigitNumber() {
-  // Generate 3 bytes of random data and convert it to a number
-  const randomBytes = crypto.randomBytes(3);
-  const randomNumber = randomBytes.readUIntBE(0, 3);
+    // Generate 3 bytes of random data and convert it to a number
+    const randomBytes = crypto.randomBytes(3);
+    const randomNumber = randomBytes.readUIntBE(0, 3);
 
-  // Ensure the number is within the 6-digit range
-  const sixDigitNumber = (randomNumber % 900000) + 100000;
+    // Ensure the number is within the 6-digit range
+    const sixDigitNumber = (randomNumber % 900000) + 100000;
 
-  return sixDigitNumber;
+    return sixDigitNumber;
 }
 
 
@@ -32,12 +32,13 @@ const Employee = {
 
             const roledata = await roleModel.findOne({ _id: req.body.roleid, depCode: req.body.refCode });//
             var autoEmpId = req.body.refCode.split('_');
-            
+
             if (!roledata) {
                 Employessresponse.Fail.message = "Refferal code is wrong.";
                 res.send(Employessresponse.Fail);
             }
             else {
+                const checkverify = await employeemodel.findOne({ email: req.body.email });
 
                 const salt = await bcrypt.genSalt(10);
                 const pass = bcrypt.hashSync(req.body.password, salt);
@@ -51,49 +52,56 @@ const Employee = {
                 // req.body.imgName = req.file.originalname;
                 // req.body.imgContextType = req.file.mimetype;
                 // req.body.imgData = req.file.buffer;
-
                 // // req.body.imgData = "Binary.createFromBase64("+req.body.imgData+",0)";
                 //    console.log(req.body.imgData);
 
-                const countemp = await employeeModel.find().countDocuments();
-                req.body.employeeId = autoEmpId[0]+'_'+autoEmpId[1]+'_'+(countemp+1);
-                 
-                const result = await new employeemodel(req.body).save();
+                var result = await employeemodel.findOne({ email: req.body.email });
+                //  console.log(!result.isVerified);
+                if (result.isVerified) {
 
-                if (!result) {
-                    Employessresponse.Fail.message = "something went wrong.";
+                    Employessresponse.Fail.message = "email is already exits.";
                     res.send(Employessresponse.Fail);
-
                 }
                 else {
-                    var imgDa = Buffer.from(req.body.imgData, 'base64');
-                    fs.writeFileSync("./public/" + result._id + ".jpeg", imgDa);
-
-                    // const token = jwt.sign(resetkey, process.env.resetKey);
-                    // const text = "http://localhost:8080/api/rest/?:" + token;
-                    // const txt = "Hi "+empData.employeeName+"! Your verification code is "+verifCode+". Enter this code in our [website or app] to reset your password.";
-                    const forMail = mailer.otpMailer(req.body.email, req.body.employeeName, verifCode);
-                    if (!forMail) {
-                        Employessresponse.Fail.message = "something went wrong";
-                        res.send(Employessresponse.Fail);
+                    if (!result.isVerified) {
+                        result = await employeemodel.findOneAndUpdate({ email: req.body.email, isVerified: false }, { $set: req.body }).exec();
                     }
+                    else {
 
-                    const response = Employessresponse.success;
-                    response.message = "employee registered successfully, to Verifiy your account check your mail."
-                    response.data = [];
-                    res.send(response);
+                        const countemp = await employeeModel.find().countDocuments();
+                        req.body.employeeId = autoEmpId[0] + '_' + autoEmpId[1] + '_' + (countemp + 1);
+
+                        result = await new employeemodel(req.body).save();
+                    }
+                    // console.log(result);
+                    if (!result) {
+                        Employessresponse.Fail.message = "something went wrong.";
+                        res.send(Employessresponse.Fail);
+
+                    }
+                    else {
+                        var imgDa = Buffer.from(req.body.imgData, 'base64');
+                        fs.writeFileSync("./public/" + result._id + ".jpeg", imgDa);
+
+                        // const token = jwt.sign(resetkey, process.env.resetKey);
+                        // const text = "http://localhost:8080/api/rest/?:" + token;
+                        // const txt = "Hi "+empData.employeeName+"! Your verification code is "+verifCode+". Enter this code in our [website or app] to reset your password.";
+                        const forMail = mailer.otpMailer(req.body.email, req.body.employeeName, verifCode);
+                        if (!forMail) {
+                            Employessresponse.Fail.message = "something went wrong";
+                            res.send(Employessresponse.Fail);
+                        }
+
+                        const response = Employessresponse.success;
+                        response.message = "employee registered successfully, to Verifiy your account check your mail."
+                        response.data = [];
+                        res.send(response);
+                    }
                 }
             }
         }
         catch (error) {
-            // console.log(error)
-            if (error.errorResponse.code === 11000) {                
-                Employessresponse.Error.code = "200";
-                let objkey = Object.keys(error.errorResponse.keyPattern);
-                let keyval = Object.values(error.errorResponse.keyValue);
-                Employessresponse.Error.message = objkey[0]+" : "+keyval[0]+" is already exits.";
-            }
-            else
+            console.log(error);
             Employessresponse.Error.message = error;
 
             res.send(Employessresponse.Error);
@@ -102,7 +110,7 @@ const Employee = {
     Login: async (req, res) => {
         try {
             const response = Employessresponse.success;
-            response.data=[];
+            response.data = [];
 
             var userdata = await employeemodel.findOne({ email: req.body.email }, { imgName: 0, imgContextType: 0, imgData: 0 });
 
@@ -128,15 +136,15 @@ const Employee = {
                     };
 
                     // const token = jwt.sign(tokenData, process.env.secreteKey);
-                    const logindata = { emprefid: userdata._id, logedin: Date.now(),lginAddress:req.body.address,lginLatitude:req.body.lat,lginLongitude:req.body.lng };
+                    const logindata = { emprefid: userdata._id, logedin: Date.now(), lginAddress: req.body.address, lginLatitude: req.body.lat, lginLongitude: req.body.lng };
 
                     // const logintm = {days:new Date()};
                     // const logupdt = await attenModel.findOneAndUpdate({emprefid:userdata._id},{$push:{logedin:logintm}},{ new: true, upsert: true }).exec();
                     const logupdt = await new attenModel(logindata).save();
-                    var imgdata = process.env.imgPath+"/public/"+userdata._id+".jpeg";
+                    var imgdata = process.env.imgPath + "/public/" + userdata._id + ".jpeg";
                     // console.log(imgdata);
                     // userdata._doc = { ...userdata._doc, token,imgpath:imgdata, loginTime: logindata.logedin };
-                    userdata._doc = { ...userdata._doc,imgpath:imgdata, loginTime: logindata.logedin };
+                    userdata._doc = { ...userdata._doc, imgpath: imgdata, loginTime: logindata.logedin };
                     userdata = userdata._doc;
                     // console.log(userdata)
                     // response.data[0]=[];
@@ -156,7 +164,7 @@ const Employee = {
             // const logdt = {days:new Date()};
             // const logData = await attenModel.findOneAndUpdate({emprefid:req.body.employeeId},{$push:{logedout:logdt}},{new:true,upsert:true}).exec();
 
-            const logoutdata = await attenModel.findOneAndUpdate({ emprefid: req.body.id }, { logedout: Date.now(),lgoAddress:req.body.address,lgoLatitude:req.body.lat,lgoLongitude:req.body.lng }).sort({ logedin: -1 }).exec();
+            const logoutdata = await attenModel.findOneAndUpdate({ emprefid: req.body.id }, { logedout: Date.now(), lgoAddress: req.body.address, lgoLatitude: req.body.lat, lgoLongitude: req.body.lng }).sort({ logedin: -1 }).exec();
 
             if (logoutdata) {
                 Employessresponse.success.message = "Logged of successfully";
@@ -184,7 +192,7 @@ const Employee = {
                 // const verifCode = shortid.generate();
                 const verifCode = generateSecureRandomSixDigitNumber();
 
-                
+
 
                 // const token = jwt.sign(resetkey, process.env.resetKey);
                 // const text = "http://localhost:8080/api/rest/?:" + token;
@@ -300,10 +308,12 @@ const Employee = {
     GetLoginHistry: async (req, res) => {
         try {
             // console.log(req.params.logindate);
-            const {empId,loginDate,logoutDate} = req.query;
+            const { empId, loginDate, logoutDate } = req.query;
             // var empdata = await employeeModel.findOne({ _id: req.params.employeeId }, { _id: 1 });
             var empdata = await employeeModel.findOne({ _id: empId }, { _id: 1 });
-           
+            console.log(empId)
+            console.log(loginDate)
+            console.log(logoutDate)
             if (empdata) {
                 var quer = {
                     emprefid: empdata._id
@@ -364,7 +374,7 @@ const Employee = {
     GetImage: async (req, res) => {
         try {
             const image = await employeeModel.findById({ _id: req.params.id });
-            
+
             if (!image) {
                 Employessresponse.Fail.message = "image not found.";
                 res.send(Employessresponse.Fail);

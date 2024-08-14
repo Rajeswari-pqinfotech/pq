@@ -16,8 +16,8 @@ const employeemodel = Schema({
     },
     mobile:{
         type:String,
-        required:[true,"mobile number is missing"],
-        unique:true
+        required:[true,"mobile number is missing"]
+        // unique:true
     },
     email:{
         type:String,
@@ -53,7 +53,8 @@ const employeemodel = Schema({
         autopopulate:true
     },
     createdAt: {
-        type: Date
+        type: Date,
+        default:new Date()
     }
 });
 

@@ -57,21 +57,21 @@ const Employee = {
 
                 var result = await employeemodel.findOne({ email: req.body.email });
                 //  console.log(!result.isVerified);
-                if (result.isVerified) {
+                if (result && result.isVerified) {
 
                     Employessresponse.Fail.message = "email is already exits.";
                     res.send(Employessresponse.Fail);
                 }
                 else {
-                    if (!result.isVerified) {
-                        result = await employeemodel.findOneAndUpdate({ email: req.body.email, isVerified: false }, { $set: req.body }).exec();
-                    }
-                    else {
+                    if (!result) {
 
                         const countemp = await employeeModel.find().countDocuments();
                         req.body.employeeId = autoEmpId[0] + '_' + autoEmpId[1] + '_' + (countemp + 1);
 
                         result = await new employeemodel(req.body).save();
+                        }
+                    else {
+                        result = await employeemodel.findOneAndUpdate({ email: req.body.email, isVerified: false }, { $set: req.body }).exec();
                     }
                     // console.log(result);
                     if (!result) {

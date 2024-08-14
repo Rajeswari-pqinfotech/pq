@@ -384,7 +384,8 @@ const Employee = {
                 else {
                     const res = { imgpath: process.env.imgPath + "/public/" + imgupdt._id + ".jpeg" };
                     Employessresponse.success.message = "images uploaded successfully.";
-                    Employessresponse.success.data = [res];
+                    Employessresponse.success.data = [];
+                    Employessresponse.success.data[0] = res;
                     res.send(Employessresponse.success);
                 }
             } else {

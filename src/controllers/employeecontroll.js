@@ -208,7 +208,7 @@ const Employee = {
                     res.send(Employessresponse.Fail);
                 }
                 else {
-                    const vData = await employeemodel.findOneAndUpdate({ _id: empData._id }, { resetCode: verifCode }).exec();
+                    const vData = await employeemodel.findOneAndUpdate({ _id: empData._id }, { resetCode: verifCode,isReset:false }).exec();
                     if (!vData) {
                         Employessresponse.Fail.message = "something went wrong";
                         res.send(Employessresponse.Fail);

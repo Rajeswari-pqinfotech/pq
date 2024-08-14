@@ -382,10 +382,10 @@ const Employee = {
                     res.send(Employessresponse.Fail);
                 }
                 else {
-                    const res = { imgpath: process.env.imgPath + "/public/" + imgupdt._id + ".jpeg" };
+                    const imgres = { imgpath: process.env.imgPath + "/public/" + imgupdt._id + ".jpeg" };
                     Employessresponse.success.message = "images uploaded successfully.";
                     Employessresponse.success.data = [];
-                    Employessresponse.success.data[0] = res;
+                    Employessresponse.success.data[0] = imgres;
                     res.send(Employessresponse.success);
                 }
             } else {

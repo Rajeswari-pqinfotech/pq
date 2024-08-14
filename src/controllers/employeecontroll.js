@@ -143,10 +143,10 @@ const Employee = {
                     // const logintm = {days:new Date()};
                     // const logupdt = await attenModel.findOneAndUpdate({emprefid:userdata._id},{$push:{logedin:logintm}},{ new: true, upsert: true }).exec();
                     const logupdt = await new attenModel(logindata).save();
+                    var imgdata=null;
                     if (userdata.imgData)
                         var imgdata = process.env.imgPath + "/public/" + userdata._id + ".jpeg";
-                    else
-                        var imgdata = null;
+                    
                     // console.log(imgdata);
                     // userdata._doc = { ...userdata._doc, token,imgpath:imgdata, loginTime: logindata.logedin };
                     userdata._doc = { ...userdata._doc, imgpath: imgdata, loginTime: logindata.logedin };

@@ -39,6 +39,13 @@ const employeemodel = Schema({
         type:Boolean,
         default:false
     },
+    resetCode:{
+        type:String
+    },
+    isReset:{        
+        type:Boolean,
+        default:false
+    },
     imgName:String,
     imgContextType:String,
     imgData:Buffer,

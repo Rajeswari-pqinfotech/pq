@@ -143,7 +143,10 @@ const Employee = {
                     // const logintm = {days:new Date()};
                     // const logupdt = await attenModel.findOneAndUpdate({emprefid:userdata._id},{$push:{logedin:logintm}},{ new: true, upsert: true }).exec();
                     const logupdt = await new attenModel(logindata).save();
-                    var imgdata = process.env.imgPath + "/public/" + userdata._id + ".jpeg";
+                    if(userdata.imgData)
+                       var imgdata = process.env.imgPath + "/public/" + userdata._id + ".jpeg";
+                    else
+                        var imgdata = null;
                     // console.log(imgdata);
                     // userdata._doc = { ...userdata._doc, token,imgpath:imgdata, loginTime: logindata.logedin };
                     userdata._doc = { ...userdata._doc, imgpath: imgdata, loginTime: logindata.logedin };
@@ -205,7 +208,7 @@ const Employee = {
                     res.send(Employessresponse.Fail);
                 }
                 else {
-                    const vData = await employeemodel.findOneAndUpdate({ _id: empData._id }, { verificationCode: verifCode, isVerified: false }).exec();
+                    const vData = await employeemodel.findOneAndUpdate({ _id: empData._id }, { resetCode: verifCode}).exec();
                     if (!vData) {
                         Employessresponse.Fail.message = "something went wrong";
                         res.send(Employessresponse.Fail);
@@ -226,8 +229,21 @@ const Employee = {
     },
     VerifyOtp: async (req, res) => {
         try {
-
-            const refData = await employeemodel.findOneAndUpdate({ verificationCode: req.body.referalCode, isVerified: false }, { isVerified: true }).exec();
+            var query={};
+            var setQuery={};
+            if(req.body.referalCode){
+                query={verificationCode: req.body.referalCode, isVerified: false};
+                setQuery={isVerified: true};
+            }
+            else if(req.body.resetCode){
+                query={resetCode: req.body.resetCode, isReseted: false};
+                setQuery={isReseted: true};
+            }
+            if(!query && !setQuery){                
+                Employessresponse.Fail.message = "Code is empty.";
+                res.send(Employessresponse.Fail);
+            }else{
+            const refData = await employeemodel.findOneAndUpdate(query, setQuery).exec();
 
             if (!refData) {
                 Employessresponse.Fail.message = "Code is already verified or invalid code.";
@@ -240,7 +256,7 @@ const Employee = {
                 Employessresponse.success.data[0] = dt;
                 res.send(Employessresponse.success);
             }
-
+        }
         }
         catch (error) {
             Employessresponse.Error.message = error;
@@ -258,7 +274,7 @@ const Employee = {
 
             const empUpdata = await employeemodel.findOneAndUpdate({ _id: req.body.employeeId }, { $set: { password: pass } }).exec();
             if (!empUpdata) {
-                Employessresponse.Fail.message = "Invalid referal code."
+                Employessresponse.Fail.message = "Invalid employee id."
                 res.send(Employessresponse.Fail);
             }
             else {
@@ -345,20 +361,21 @@ const Employee = {
     },
     addImage: async (req, res) => {
         try {
-            if (req.file) {
-                const updata = {
-                    imgName: req.file.originalname,
-                    imgContextType: req.file.mimetype,
-                    imgData: req.file.buffer,
-                    // imgContextType:req.file.imgContextType,
-                    // imgData:req.file.imgData
-                };
-                const bsimgName = req.file.imgName
+            if (req.body.imgData) {
+                // const updata = {
+                //     imgName: req.file.originalname,
+                //     imgContextType: req.file.mimetype,
+                //     imgData: req.file.buffer,
+                //     // imgContextType:req.file.imgContextType,
+                //     // imgData:req.file.imgData
+                // };
+                // const bsimgName = req.file.imgName
                 var imgDa = Buffer.from(req.body.imgData, 'base64');
                 fs.writeFileSync("./public/" + req.body.id + ".jpeg", imgDa);
 
                 //  console.log(req.body.id);
-                const imgupdt = await employeeModel.findOneAndUpdate({ _id: req.body.id }, { $set: updata }).exec();
+                // const imgupdt = await employeeModel.findOneAndUpdate({ _id: req.body.id }, { $set: updata }).exec();
+                const imgupdt = await employeeModel.findOneAndUpdate({ _id: req.body.id }, { $set:{imgData:req.body.imgData} }).exec();
                 // console.log(imgupdt);
                 Employessresponse.success.message = "images uploaded successfully.";
                 Employessresponse.success.data = [];

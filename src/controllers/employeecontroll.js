@@ -80,8 +80,10 @@ const Employee = {
 
                     }
                     else {
+                        if(req.body.imgData){                            
                         var imgDa = Buffer.from(req.body.imgData, 'base64');
                         fs.writeFileSync("./public/" + result._id + ".jpeg", imgDa);
+                        }
 
                         // const token = jwt.sign(resetkey, process.env.resetKey);
                         // const text = "http://localhost:8080/api/rest/?:" + token;

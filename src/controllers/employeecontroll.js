@@ -32,7 +32,6 @@ const Employee = {
 
             const roledata = await roleModel.findOne({ _id: req.body.roleid, depCode: req.body.refCode });//
             var autoEmpId = req.body.refCode.split('_');
-
             if (!roledata) {
                 Employessresponse.Fail.message = "Refferal code is wrong.";
                 res.send(Employessresponse.Fail);
@@ -56,6 +55,11 @@ const Employee = {
                 //    console.log(req.body.imgData);
 
                 var result = await employeemodel.findOne({ email: req.body.email });
+                var imgavail = false;
+                if (req.body.imgData)
+                    imgavail = true;
+                
+                 req.body.imgAvail = imgavail;
                 //  console.log(!result.isVerified);
                 if (result && result.isVerified) {
 
@@ -81,6 +85,7 @@ const Employee = {
                     }
                     else {
                         if (req.body.imgData) {
+                            imgavail = true;
                             var imgDa = Buffer.from(req.body.imgData, 'base64');
                             fs.writeFileSync("./public/" + result._id + ".jpeg", imgDa);
                         }
@@ -114,7 +119,7 @@ const Employee = {
             const response = Employessresponse.success;
             response.data = [];
 
-            var userdata = await employeemodel.findOne({ email: req.body.email }, { imgName: 0, imgContextType: 0, imgData: 0 });
+            var userdata = await employeemodel.findOne({ email: req.body.email }, { imgName: 0, imgContextType: 0,imgData:0 });
 
             if (!userdata) {
                 Employessresponse.Fail.message = "invalid credentials";
@@ -144,10 +149,11 @@ const Employee = {
                     // const logupdt = await attenModel.findOneAndUpdate({emprefid:userdata._id},{$push:{logedin:logintm}},{ new: true, upsert: true }).exec();
                     const logupdt = await new attenModel(logindata).save();
                     var imgdata=null;
-                    if (userdata.imgData)
-                        var imgdata = process.env.imgPath + "/public/" + userdata._id + ".jpeg";
+                    if (userdata.imgAvail)
+                        imgdata = process.env.imgPath + "/public/" + userdata._id + ".jpeg";
                     
                     // console.log(imgdata);
+                    // console.log(userdata);
                     // userdata._doc = { ...userdata._doc, token,imgpath:imgdata, loginTime: logindata.logedin };
                     userdata._doc = { ...userdata._doc, imgpath: imgdata, loginTime: logindata.logedin };
                     userdata = userdata._doc;
@@ -362,6 +368,7 @@ const Employee = {
     addImage: async (req, res) => {
         try {
             if (req.body.imgData) {
+
                 // const updata = {
                 //     imgName: req.file.originalname,
                 //     imgContextType: req.file.mimetype,
@@ -375,7 +382,7 @@ const Employee = {
 
                 //  console.log(req.body.id);
                 // const imgupdt = await employeeModel.findOneAndUpdate({ _id: req.body.id }, { $set: updata }).exec();
-                const imgupdt = await employeeModel.findOneAndUpdate({ _id: req.body.id }, { $set: { imgData: req.body.imgData } }).exec();
+                const imgupdt = await employeeModel.findOneAndUpdate({ _id: req.body.id }, { $set: { imgData: req.body.imgData,imgAvail:true } }).exec();
                 // console.log(imgupdt);
                 if (!imgupdt) {
                     Employessresponse.Fail.message = "Something went wrong.";

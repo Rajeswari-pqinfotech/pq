@@ -49,6 +49,7 @@ const employeemodel = Schema({
     imgName:String,
     imgContextType:String,
     imgData:Buffer,
+    imgAvail:Boolean,
     roleid:{
         type:mongodb.Schema.ObjectId,
         ref:'roles',

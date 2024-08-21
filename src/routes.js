@@ -29,7 +29,7 @@ router.post("/employee/Verify",Employee.VerifyOtp);
 router.post("/employee/resetpassword",Employee.ResetPassword);
 router.get("/employee/getEmployee/:empId",Employee.GetEmployee);
 router.get("/employee/loginHistroy",Employee.GetLoginHistry); ///:employeeId/:logindate/:logoutdate
-router.post("/employee/addImage",upload.single('dpImg'),Employee.addImage);
+router.post("/employee/addImage",upload.single('image'),Employee.addImage);
 router.get("/employee/getImage/:id",Employee.GetImage);
 router.post("/employee/addClientDetail",clientController.AddClientData);
 router.get("/employee/getClientDetail",clientController.getClientdetail);

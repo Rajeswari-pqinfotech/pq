@@ -48,15 +48,16 @@ const Employee = {
 
                 req.body.verificationCode = verifCode;
 
-                // req.body.imgName = req.file.originalname;
-                // req.body.imgContextType = req.file.mimetype;
-                // req.body.imgData = req.file.buffer;
-                // // req.body.imgData = "Binary.createFromBase64("+req.body.imgData+",0)";
+                req.body.imgName = req.file.originalname;
+                req.body.imgContextType = req.file.mimetype;
+                req.body.imgData = req.file.buffer;
+                req.body.imgData = "Binary.createFromBase64("+req.body.imgData+",0)";
                 //    console.log(req.body.imgData);
 
                 var result = await employeemodel.findOne({ email: req.body.email });
                 var imgavail = false;
-                if (req.body.imgData)
+                // if (req.body.imgData)
+                if (req.body.imgContextType)
                     imgavail = true;
                 
                  req.body.imgAvail = imgavail;
@@ -84,10 +85,12 @@ const Employee = {
 
                     }
                     else {
-                        if (req.body.imgData) {
+                        // if (req.body.imgData) {
+                        if (req.body.imgContextType) {
                             imgavail = true;
-                            var imgDa = Buffer.from(req.body.imgData, 'base64');
-                            fs.writeFileSync("./public/" + result._id + ".jpeg", imgDa);
+                            // var imgDa = Buffer.from(req.body.imgData, 'base64');
+                            // fs.writeFileSync("./public/" + result._id + ".jpeg", imgDa);
+                            fs.writeFileSync("./public/" + result._id + ".jpeg", req.file.buffer);
                         }
 
                         // const token = jwt.sign(resetkey, process.env.resetKey);
@@ -367,7 +370,8 @@ const Employee = {
     },
     addImage: async (req, res) => {
         try {
-            if (req.body.imgData) {
+            // console.log(req);
+            if (req.file.mimetype) {
 
                 // const updata = {
                 //     imgName: req.file.originalname,
@@ -377,8 +381,14 @@ const Employee = {
                 //     // imgData:req.file.imgData
                 // };
                 // const bsimgName = req.file.imgName
-                var imgDa = Buffer.from(req.body.imgData, 'base64');
-                fs.writeFileSync("./public/" + req.body.id + ".jpeg", imgDa);
+
+                req.body.imgName = req.file.originalname;
+                req.body.imgContextType = req.file.mimetype;
+                req.body.imgData = req.file.buffer;
+                req.body.imgData = "Binary.createFromBase64("+req.body.imgData+",0)";
+
+                // var imgDa = Buffer.from(req.body.imgData, 'base64');
+                fs.writeFileSync("./public/" + req.body.id + ".jpeg", req.file.buffer);
 
                 //  console.log(req.body.id);
                 // const imgupdt = await employeeModel.findOneAndUpdate({ _id: req.body.id }, { $set: updata }).exec();
@@ -405,32 +415,60 @@ const Employee = {
             res.status(500).send('Error retrieving image');
         }
     },
-    GetImage: async (req, res) => {
+    GetImage:async (req, res) => {
         try {
-            const image = await employeeModel.findById({ _id: req.params.id });
-
+            // Find the image document by ID
+            const image = await employeeModel.findById(req.params.id);
+    
+            // Check if the image was found
             if (!image) {
-                Employessresponse.Fail.message = "image not found.";
-                res.send(Employessresponse.Fail);
+                return res.status(404).send({ message: "Image not found." });
             }
-
-            var img = Buffer.from(image.imgData, 'base64');
-
+    
+            // Decode the base64 image data
+            const imgBuffer = Buffer.from(image.imgData, 'base64');
+    
+            // Set the response headers
             res.writeHead(200, {
-                'Content-Type': image.imgContextType,
-                // 'Content-Type':'image/jpeg',
-                'Content-Length': img.length
+                'Content-Type': image.imgContextType, // e.g., 'image/jpeg', 'image/png'
+                'Content-Length': imgBuffer.length
             });
-            res.end(img);
-
-            // Set response headers to serve the image
-            // res.set('Content-Type', image.imgContextType);
-            // res.send(image);
+    
+            // Send the image data
+            res.end(imgBuffer);
+    
         } catch (error) {
+            // Log the error and send a server error response
             console.error('Error retrieving image:', error);
             res.status(500).send('Error retrieving image');
         }
     }
+    // GetImage: async (req, res) => {
+    //     try {
+    //         const image = await employeeModel.findById({ _id: req.params.id });
+
+    //         if (!image) {
+    //             Employessresponse.Fail.message = "image not found.";
+    //             res.send(Employessresponse.Fail);
+    //         }
+
+    //         var img = Buffer.from(image.imgData, 'base64');
+
+    //         res.writeHead(200, {
+    //             'Content-Type': image.imgContextType,
+    //             // 'Content-Type':'image/jpeg',
+    //             'Content-Length': img.length
+    //         });
+    //         res.end(img);
+
+    //         // Set response headers to serve the image
+    //         // res.set('Content-Type', image.imgContextType);
+    //         // res.send(image);
+    //     } catch (error) {
+    //         console.error('Error retrieving image:', error);
+    //         res.status(500).send('Error retrieving image');
+    //     }
+    // }
 }
 
 module.exports = Employee;

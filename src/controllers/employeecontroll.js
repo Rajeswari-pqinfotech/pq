@@ -370,7 +370,7 @@ const Employee = {
     },
     addImage: async (req, res) => {
         try {
-            // console.log(req);
+            //  console.log(req);
             if (req.file.mimetype) {
 
                 // const updata = {

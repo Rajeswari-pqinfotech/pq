@@ -178,7 +178,7 @@ const Employee = {
             // const logdt = {days:new Date()};
             // const logData = await attenModel.findOneAndUpdate({emprefid:req.body.employeeId},{$push:{logedout:logdt}},{new:true,upsert:true}).exec();
 
-            const logoutdata = await attenModel.findOneAndUpdate({ emprefid: req.body.id }, { logedout: Date.now(), lgoAddress: req.body.address, lgoLatitude: req.body.lat, lgoLongitude: req.body.lng }).sort({ logedin: -1 }).exec();
+            const logoutdata = await attenModel.findOneAndUpdate({ emprefid: req.body.id }, { logedout: Date.now(), lgoAddress: req.body.address, lgoLatitude: req.body.lat, lgoLongitude: req.body.lng,lgoDis:req.body.logDistance }).sort({ logedin: -1 }).exec();
 
             if (logoutdata) {
                 Employessresponse.success.message = "Logged of successfully";

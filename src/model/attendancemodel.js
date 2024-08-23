@@ -32,6 +32,9 @@ const attmdl = Schema({
     lgoLongitude:{
         type:Number
     },
+    lgoDis:{
+        type:Number
+    },
     createdAt:{
         type:Date,
         default:new Date()
